@@ -16,15 +16,17 @@ class Bank
 
   public BankAccount CreateAccount(string ownerName, double initialBalance)
   {
+    // // Check if can convert to decimal
+    decimal _initialBalance = Convert.ToDecimal(initialBalance);
     // Validation
     ValidateOwnerName(ownerName);
-    ValidateBalance(initialBalance);
+    ValidateBalance(_initialBalance);
 
     // Generate & Store Account Id
     _accountNumber = GenerateAccountNumber();
     // _accountsNumbersSet.Add(_accountNumber);
 
-    BankAccount createdAccount = new(_accountNumber, ownerName.Trim().ToLower(), initialBalance);
+    BankAccount createdAccount = new(_accountNumber, ownerName.Trim().ToLower(), _initialBalance);
 
     // Store the New Account
     _accounts.Add(_accountNumber, createdAccount);
@@ -49,7 +51,7 @@ class Bank
 
     return account;
   }
-  public void Deposit(string accountNumber, double amount)
+  public void Deposit(string accountNumber, decimal amount)
   {
     // 1. Find Account.
     BankAccount account = FindAccount(accountNumber);
@@ -67,7 +69,7 @@ class Bank
     account.AddToTransactionsRefIds(transaction.ReferenceId);
   }
 
-  public void Withdraw(string accountNumber, double amount)
+  public void Withdraw(string accountNumber, decimal amount)
   {
     BankAccount account = FindAccount(accountNumber);
 
@@ -81,32 +83,29 @@ class Bank
 
   }
 
-  public void Transfer(BankAccount fromAccount, BankAccount toAccount, double amount)
+  public void Transfer(string fromAccountNumber, string toAccountNumber, decimal amount)
   {
     // Check Accounts
-    if (!_accounts.ContainsValue(fromAccount))
-      throw new ArgumentException("No Account found.", nameof(fromAccount));
+    BankAccount srcAccount = FindAccount(fromAccountNumber);
+    BankAccount destAccount = FindAccount(toAccountNumber);
 
-    if (!_accounts.ContainsValue(toAccount))
-      throw new ArgumentException("No Account found.", nameof(toAccount));
-
-    if (fromAccount == toAccount)
-      throw new ArgumentException("The Account Cannot Transfer For Itself.", nameof(toAccount));
+    if (srcAccount == destAccount)
+      throw new ArgumentException("The Account Cannot Transfer For Itself.", nameof(toAccountNumber));
 
 
     // Confirm Transfer
-    fromAccount.ApplyWithdraw(amount);
-    toAccount.ApplyDeposit(amount);
+    srcAccount.ApplyWithdraw(amount);
+    destAccount.ApplyDeposit(amount);
 
 
     // Add to Bank History
-    Transaction transaction = new(TransactionType.Transfer, amount, fromAccount.AccountNumber, isTransfer: true, toAccount.AccountNumber);
+    Transaction transaction = new(amount, srcAccount.AccountNumber, destAccount.AccountNumber, TransactionType.Transfer);
 
     AddToTransactions(transaction.ReferenceId, transaction);
 
     // Add ReferenceID to Both Accounts.
-    fromAccount.AddToTransactionsRefIds(transaction.ReferenceId);
-    toAccount.AddToTransactionsRefIds(transaction.ReferenceId);
+    srcAccount.AddToTransactionsRefIds(transaction.ReferenceId);
+    destAccount.AddToTransactionsRefIds(transaction.ReferenceId);
   }
 
   public List<Transaction> GetAccountTransactions(string accountNumber)
@@ -128,6 +127,8 @@ class Bank
   public Transaction GetTransactionByRefId(string refId)
   {
     _transactions.TryGetValue(refId, out Transaction transaction);
+    if (transaction == null)
+      throw new ArgumentException("No Transaction Found For Provided Reference Id.", nameof(refId));
     return transaction;
   }
 
@@ -155,7 +156,7 @@ class Bank
       throw new ArgumentException("Invalid Name! Only Use Alphabetical Characters.", nameof(name));
   }
 
-  private void ValidateBalance(double balance)
+  private void ValidateBalance(decimal balance)
   {
     // Check if Valid Balance.
     if (balance < 0)
