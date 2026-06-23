@@ -9,10 +9,17 @@ Practice OOP and backend thinking.
 - Transaction
 
 ## Current Design:
-- Bank stores accounts in Dictionary<AccountNumber, BankAccount>
-- Bank stores transactions in Dictionary<ReferenceId, Transaction>
-- Bank coordinates transfers
-- BankAccount manages balance
+### Bank
+- Stores accounts in Dictionary<AccountNumber, BankAccount>
+- Stores transactions in Dictionary<ReferenceId, Transaction>
+- Coordinates transfers
+
+### BankAccount
+- Holds balance
+- Performs deposits and withdrawals
+
+### Transaction
+- Represents a banking operation
 
 ## Known Questions:
 - Transaction ownership
