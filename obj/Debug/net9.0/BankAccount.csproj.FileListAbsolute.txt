@@ -1,0 +1,14 @@
+/Users/yusufmofeed/Documents/WorkSpace/CsBasis/NewStart/BankAccount/bin/Debug/net9.0/BankAccount
+/Users/yusufmofeed/Documents/WorkSpace/CsBasis/NewStart/BankAccount/bin/Debug/net9.0/BankAccount.deps.json
+/Users/yusufmofeed/Documents/WorkSpace/CsBasis/NewStart/BankAccount/bin/Debug/net9.0/BankAccount.runtimeconfig.json
+/Users/yusufmofeed/Documents/WorkSpace/CsBasis/NewStart/BankAccount/bin/Debug/net9.0/BankAccount.dll
+/Users/yusufmofeed/Documents/WorkSpace/CsBasis/NewStart/BankAccount/bin/Debug/net9.0/BankAccount.pdb
+/Users/yusufmofeed/Documents/WorkSpace/CsBasis/NewStart/BankAccount/obj/Debug/net9.0/BankAccount.GeneratedMSBuildEditorConfig.editorconfig
+/Users/yusufmofeed/Documents/WorkSpace/CsBasis/NewStart/BankAccount/obj/Debug/net9.0/BankAccount.AssemblyInfoInputs.cache
+/Users/yusufmofeed/Documents/WorkSpace/CsBasis/NewStart/BankAccount/obj/Debug/net9.0/BankAccount.AssemblyInfo.cs
+/Users/yusufmofeed/Documents/WorkSpace/CsBasis/NewStart/BankAccount/obj/Debug/net9.0/BankAccount.csproj.CoreCompileInputs.cache
+/Users/yusufmofeed/Documents/WorkSpace/CsBasis/NewStart/BankAccount/obj/Debug/net9.0/BankAccount.dll
+/Users/yusufmofeed/Documents/WorkSpace/CsBasis/NewStart/BankAccount/obj/Debug/net9.0/refint/BankAccount.dll
+/Users/yusufmofeed/Documents/WorkSpace/CsBasis/NewStart/BankAccount/obj/Debug/net9.0/BankAccount.pdb
+/Users/yusufmofeed/Documents/WorkSpace/CsBasis/NewStart/BankAccount/obj/Debug/net9.0/BankAccount.genruntimeconfig.cache
+/Users/yusufmofeed/Documents/WorkSpace/CsBasis/NewStart/BankAccount/obj/Debug/net9.0/ref/BankAccount.dll

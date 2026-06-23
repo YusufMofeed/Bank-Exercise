@@ -1,0 +1,6 @@
+namespace BankAccount;
+
+class AccountNumber
+{
+
+}
