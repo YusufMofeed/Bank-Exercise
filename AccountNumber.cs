@@ -1,6 +1,0 @@
-namespace BankAccount;
-
-class AccountNumber
-{
-
-}

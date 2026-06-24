@@ -1,4 +1,4 @@
-namespace BankAccount;
+namespace BankExercise.Domain.Entities;
 
 public enum TransactionType
 {

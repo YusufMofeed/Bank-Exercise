@@ -1,7 +1,6 @@
-using System.Security.Cryptography;
-using System.Text.RegularExpressions;
+using BankExercise.Domain.ValueObjects;
 
-namespace BankAccount;
+namespace BankExercise.Domain.Entities;
 
 public class BankAccount
 {
@@ -11,17 +10,15 @@ public class BankAccount
   private decimal _balance;
   public decimal Balance => _balance;
 
-  private readonly string _accountNumber;
-  public string AccountNumber => _accountNumber;
-  private readonly HashSet<string> _transactionsRefIds = []; // could be a List
-  // public HashSet<string> TransactionsRefIds => _transactionsRefIds;
+  private readonly AccountNumber _accountNumber;
+  public AccountNumber AccountNumber => _accountNumber;
 
 
-  public BankAccount(string accountNumber, string ownerName, decimal initialBalance)
+  public BankAccount(AccountNumber accountNumber, OwnerName name, decimal initialBalance)
   {
     // Assign Account Number, OwnerName & Balance.
     _accountNumber = accountNumber;
-    _ownerName = ownerName;
+    _ownerName = name.Name;
     _balance = initialBalance;
   }
   // Public API
@@ -37,8 +34,7 @@ public class BankAccount
   }
 
   // System Operations (Private)
-
-  private void ValidateDepositAmount(decimal amount)
+  private static void ValidateDepositAmount(decimal amount)
   {
     if (amount <= 0)
       throw new ArgumentException("Deposit Amount Must Be Greater Than Zero.", nameof(amount));
@@ -48,10 +44,5 @@ public class BankAccount
   {
     if (amount <= 0 || amount > _balance)
       throw new ArgumentException("Withdrawl Amount Must Be Greater Than Zero and Less Than Or Equals The Account Balance.", nameof(amount));
-  }
-
-  public void AddToTransactionsRefIds(string refID)
-  {
-    _transactionsRefIds.Add(refID);
   }
 }
