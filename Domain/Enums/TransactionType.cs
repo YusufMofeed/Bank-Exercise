@@ -1,9 +1,8 @@
-namespace BankExercise.Domain.Entities;
+namespace BankExercise.Domain.Enums;
 
 public enum TransactionType
 {
   Deposit,
   Withdraw,
   Transfer,
-  Recieved,
 }

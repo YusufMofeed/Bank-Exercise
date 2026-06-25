@@ -1,48 +1,36 @@
+using BankExercise.Domain.Enums;
 using BankExercise.Domain.ValueObjects;
 
 namespace BankExercise.Domain.Entities;
 
 public class BankAccount
 {
-  private readonly string _ownerName;
-  public string OwnerName => _ownerName;
-
-  private decimal _balance;
-  public decimal Balance => _balance;
-
-  private readonly AccountNumber _accountNumber;
-  public AccountNumber AccountNumber => _accountNumber;
+  public OwnerName OwnerName { get; }
+  public Money Balance { get; private set; }
+  public AccountNumber AccountNumber { get; }
 
 
-  public BankAccount(AccountNumber accountNumber, OwnerName name, decimal initialBalance)
+  public BankAccount(AccountNumber accountNumber, OwnerName name, Money initialBalance)
   {
-    // Assign Account Number, OwnerName & Balance.
-    _accountNumber = accountNumber;
-    _ownerName = name.Name;
-    _balance = initialBalance;
+    OwnerName = name;
+    Balance = initialBalance;
+    AccountNumber = accountNumber;
   }
   // Public API
-  public void ApplyDeposit(decimal amount)
+  public void ApplyDeposit(Money amount)
   {
-    ValidateDepositAmount(amount);
-    _balance += amount;
+    Balance += amount;
   }
-  public void ApplyWithdraw(decimal amount)
+  public void ApplyWithdraw(Money amount)
   {
     ValidateWithdrawAmount(amount);
-    _balance -= amount;
+    Balance -= amount;
   }
 
   // System Operations (Private)
-  private static void ValidateDepositAmount(decimal amount)
+  private void ValidateWithdrawAmount(Money amount)
   {
-    if (amount <= 0)
-      throw new ArgumentException("Deposit Amount Must Be Greater Than Zero.", nameof(amount));
-  }
-
-  private void ValidateWithdrawAmount(decimal amount)
-  {
-    if (amount <= 0 || amount > _balance)
-      throw new ArgumentException("Withdrawl Amount Must Be Greater Than Zero and Less Than Or Equals The Account Balance.", nameof(amount));
+    if (amount > Balance)
+      throw new InvalidOperationException("Withdrawal Amount Must Be <= The Account Balance.");
   }
 }

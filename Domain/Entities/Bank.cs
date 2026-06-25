@@ -1,19 +1,25 @@
 using BankExercise.Domain.ValueObjects;
+using BankExercise.Domain.Enums;
+using System.Security.Cryptography;
+
 
 namespace BankExercise.Domain.Entities;
 
-class Bank
+public class Bank
 {
   private AccountNumber _accountNumber;
   private readonly Dictionary<AccountNumber, BankAccount> _accounts = [];
   private readonly Dictionary<TransactionReference, Transaction> _transactions = [];
 
+  private const int FromInclusive = 100000;
+  private const int ToExclusive = 1000000;
+
   public BankAccount CreateAccount(OwnerName name, Money initialBalance)
   {
     // Generate Account Id
-    _accountNumber = AccountNumber.Generate();
+    _accountNumber = GenerateAccountNumber();
 
-    BankAccount createdAccount = new(_accountNumber, name, initialBalance.Value);
+    BankAccount createdAccount = new(_accountNumber, name, initialBalance);
 
     // Store the New Account
     _accounts.Add(_accountNumber, createdAccount);
@@ -21,16 +27,23 @@ class Bank
     return createdAccount;
   }
 
+  private AccountNumber GenerateAccountNumber()
+  {
+    // Generate A 6-digit Unique Number.
+    AccountNumber accountNumber;
+    do
+    {
+      accountNumber = new AccountNumber(RandomNumberGenerator.GetInt32(FromInclusive, ToExclusive).ToString());
+    } while (_accounts.ContainsKey(accountNumber));
 
+    return accountNumber;
+  }
   // Public API
 
-  public BankAccount FindAccount(AccountNumber accountNumber)
+  private BankAccount FindAccount(AccountNumber accountNumber)
   {
     CheckAccountNumber(accountNumber);
-
-    _accounts.TryGetValue(accountNumber, out BankAccount account);
-
-    return account;
+    return _accounts[accountNumber];
   }
   public void Deposit(AccountNumber accountNumber, Money amount)
   {
@@ -38,10 +51,10 @@ class Bank
     BankAccount account = FindAccount(accountNumber);
 
     // 2. Account.ApplyDeposit.
-    account.ApplyDeposit(amount.Value);
+    account.ApplyDeposit(amount);
 
     // 3. Generate Transaction.
-    Transaction transaction = new(TransactionType.Deposit, amount.Value, accountNumber);
+    Transaction transaction = new(TransactionType.Deposit, amount, accountNumber);
 
     // 4. Store Transaction in Bank.
     AddToTransactions(transaction.ReferenceId, transaction);
@@ -51,9 +64,9 @@ class Bank
   {
     BankAccount account = FindAccount(accountNumber);
 
-    account.ApplyWithdraw(amount.Value);
+    account.ApplyWithdraw(amount);
 
-    Transaction transaction = new(TransactionType.Withdraw, amount.Value, accountNumber);
+    Transaction transaction = new(TransactionType.Withdraw, amount, accountNumber);
 
     AddToTransactions(transaction.ReferenceId, transaction);
   }
@@ -63,29 +76,35 @@ class Bank
     // Check Accounts
     BankAccount srcAccount = FindAccount(fromAccountNumber);
     BankAccount destAccount = FindAccount(toAccountNumber);
+    Transaction transaction;
 
     if (srcAccount == destAccount)
       throw new ArgumentException("The Account Cannot Transfer For Itself.", nameof(toAccountNumber));
 
+    try
+    {
+      // Confirm Transfer
+      srcAccount.ApplyWithdraw(amount);
+      destAccount.ApplyDeposit(amount);
 
-    // Confirm Transfer
-    srcAccount.ApplyWithdraw(amount.Value);
-    destAccount.ApplyDeposit(amount.Value);
-
-
-    // Create Transfer Transaction. 
-    Transaction transaction = Transaction.CreateTransfer(amount.Value, fromAccountNumber, toAccountNumber);
+      // Create Transfer Transaction. 
+      transaction = Transaction.CreateTransfer(amount, fromAccountNumber, toAccountNumber);
+    }
+    catch
+    {
+      srcAccount.ApplyDeposit(amount); // Rollback
+      throw;
+    }
 
     // Add to Bank History.
     AddToTransactions(transaction.ReferenceId, transaction);
   }
 
-  public List<Transaction> GetAccountTransactions(AccountNumber accountNumber)
+  public IReadOnlyList<Transaction> GetAccountTransactions(AccountNumber accountNumber)
   {
     CheckAccountNumber(accountNumber);
 
-    List<Transaction> transactions = [.. _transactions.Values.Where(t => t.AccountNumber == accountNumber || t.DestAccountNumber == accountNumber)];
-    return transactions;
+    return [.. _transactions.Values.Where(t => t.AccountNumber == accountNumber || t.DestAccountNumber == accountNumber)];
   }
 
   public Transaction GetTransactionByRefId(TransactionReference refId)
@@ -96,10 +115,9 @@ class Bank
     return transaction;
   }
 
-  public Dictionary<TransactionReference, Transaction> GetTransactionsByType(TransactionType type)
+  public IReadOnlyList<Transaction> GetTransactionsByType(TransactionType type)
   {
-    Dictionary<TransactionReference, Transaction> transactions = new(_transactions.Where(t => t.Value.Type == type));
-    return transactions;
+    return [.. _transactions.Values.Where(t => t.Type == type)];
   }
 
   // Internal Operations
