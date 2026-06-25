@@ -17,7 +17,7 @@ public class Transaction
   public Transaction(TransactionType type, Money amount, AccountNumber accountNumber)
   {
     ReferenceId = TransactionReference.Generate();
-    Date = DateTime.Now;
+    Date = DateTimeOffset.UtcNow;
     Type = type;
     Amount = amount;
     AccountNumber = accountNumber;
@@ -25,7 +25,7 @@ public class Transaction
   private Transaction(Money amount, AccountNumber srcAccountNumber, AccountNumber destAccountNumber)
   {
     ReferenceId = TransactionReference.Generate();
-    Date = DateTime.Now;
+    Date = DateTimeOffset.UtcNow;
     Type = TransactionType.Transfer;
     Amount = amount;
     AccountNumber = srcAccountNumber;

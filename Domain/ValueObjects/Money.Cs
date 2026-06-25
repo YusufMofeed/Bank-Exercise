@@ -1,5 +1,3 @@
-using BankExercise.Domain.Enums;
-
 namespace BankExercise.Domain.ValueObjects;
 
 public readonly record struct Money
@@ -19,13 +17,11 @@ public readonly record struct Money
   // Usage: Balance += amount;
   public static Money operator +(Money left, Money right)
   {
-    ValidateAmount(MathOperation.Addition, right);
     return new Money(left.Value + right.Value);
   }
 
   public static Money operator -(Money left, Money right)
   {
-    ValidateAmount(MathOperation.Subtraction, right);
     return new Money(left.Value - right.Value);
   }
 
@@ -44,14 +40,6 @@ public readonly record struct Money
   public static bool operator <=(Money left, Money right)
   {
     return left.Value <= right.Value;
-  }
-
-  private static void ValidateAmount(MathOperation operation, Money amount)
-  {
-    // We've already prevented Money from being < 0.
-    // Prevent Add/Sub Amount from being == 0.
-    if (amount.Value == 0)
-      throw new ArgumentException($"{operation} Amount Must Be > Zero.", nameof(amount));
   }
   /*
     // Method approach 

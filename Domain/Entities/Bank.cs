@@ -7,38 +7,24 @@ namespace BankExercise.Domain.Entities;
 
 public class Bank
 {
-  private AccountNumber _accountNumber;
   private readonly Dictionary<AccountNumber, BankAccount> _accounts = [];
   private readonly Dictionary<TransactionReference, Transaction> _transactions = [];
 
   private const int FromInclusive = 100000;
   private const int ToExclusive = 1000000;
 
+  // Public API
   public BankAccount CreateAccount(OwnerName name, Money initialBalance)
   {
-    // Generate Account Id
-    _accountNumber = GenerateAccountNumber();
+    AccountNumber accountNumber = GenerateAccountNumber();
 
-    BankAccount createdAccount = new(_accountNumber, name, initialBalance);
+    BankAccount createdAccount = new(accountNumber, name, initialBalance);
 
-    // Store the New Account
-    _accounts.Add(_accountNumber, createdAccount);
+    _accounts.Add(accountNumber, createdAccount);
 
     return createdAccount;
   }
 
-  private AccountNumber GenerateAccountNumber()
-  {
-    // Generate A 6-digit Unique Number.
-    AccountNumber accountNumber;
-    do
-    {
-      accountNumber = new AccountNumber(RandomNumberGenerator.GetInt32(FromInclusive, ToExclusive).ToString());
-    } while (_accounts.ContainsKey(accountNumber));
-
-    return accountNumber;
-  }
-  // Public API
 
   private BankAccount FindAccount(AccountNumber accountNumber)
   {
@@ -47,16 +33,12 @@ public class Bank
   }
   public void Deposit(AccountNumber accountNumber, Money amount)
   {
-    // 1. Find Account.
     BankAccount account = FindAccount(accountNumber);
 
-    // 2. Account.ApplyDeposit.
     account.ApplyDeposit(amount);
 
-    // 3. Generate Transaction.
     Transaction transaction = new(TransactionType.Deposit, amount, accountNumber);
 
-    // 4. Store Transaction in Bank.
     AddToTransactions(transaction.ReferenceId, transaction);
   }
 
@@ -87,16 +69,14 @@ public class Bank
       srcAccount.ApplyWithdraw(amount);
       destAccount.ApplyDeposit(amount);
 
-      // Create Transfer Transaction. 
       transaction = Transaction.CreateTransfer(amount, fromAccountNumber, toAccountNumber);
     }
     catch
     {
-      srcAccount.ApplyDeposit(amount); // Rollback
+      srcAccount.ApplyDeposit(amount); // Rollback. Not Safe Yet.
       throw;
     }
 
-    // Add to Bank History.
     AddToTransactions(transaction.ReferenceId, transaction);
   }
 
@@ -121,6 +101,17 @@ public class Bank
   }
 
   // Internal Operations
+  private AccountNumber GenerateAccountNumber()
+  {
+    // Generate A 6-digit Unique Number.
+    AccountNumber accountNumber;
+    do
+    {
+      accountNumber = new AccountNumber(RandomNumberGenerator.GetInt32(FromInclusive, ToExclusive).ToString());
+    } while (_accounts.ContainsKey(accountNumber));
+
+    return accountNumber;
+  }
   private void AddToTransactions(TransactionReference refId, Transaction transaction)
   {
     _transactions.Add(refId, transaction);
